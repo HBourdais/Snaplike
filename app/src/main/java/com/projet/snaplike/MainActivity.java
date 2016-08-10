@@ -1,6 +1,10 @@
 package com.projet.snaplike;
 
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -9,8 +13,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.Button;
+import android.widget.ImageView;
 
 public class MainActivity extends AppCompatActivity {
+
+    public static final int Request_capture = 1;
+    ImageView result_photo;
 
     FloatingActionButton fab_plus, fab_calendar, fab_fb;
     Animation FabOpen, FabClose, FabRClockwise, FabRanticlockwise;
@@ -22,6 +31,15 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        Button click = (Button)findViewById(R.id.Bcapture);
+        result_photo = (ImageView)findViewById(R.id.imageView);
+
+        if(!hasCamera())
+        {
+            click.setEnabled(false);
+        }
+
         fab_plus = (FloatingActionButton) findViewById(R.id.fab_plus);
         fab_calendar = (FloatingActionButton) findViewById(R.id.fab_calendar);
         fab_fb = (FloatingActionButton) findViewById(R.id.fab_fb);
@@ -81,5 +99,27 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public boolean hasCamera()
+    {
+        return getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY);
+    }
+
+    public void launchCamera(View v)
+    {
+        Intent i = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        startActivityForResult(i , Request_capture);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == Request_capture && resultCode == RESULT_OK)
+        {
+            Bundle extras = data.getExtras() ;
+            Bitmap photo  =  (Bitmap) extras.get("data");
+            result_photo.setImageBitmap(photo);
+        }
+
     }
 }
